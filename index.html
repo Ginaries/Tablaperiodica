@@ -42,6 +42,24 @@
     -webkit-overflow-scrolling: touch;
     margin-bottom: 32px;
   }
+  .tabla-wrapper::-webkit-scrollbar {
+    height: 10px;
+    background: #232526;
+    border-radius: 8px;
+  }
+  .tabla-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #1de9b6 40%, #232526 100%);
+    border-radius: 8px;
+    border: 2px solid #232526;
+  }
+  .tabla-wrapper::-webkit-scrollbar-track {
+    background: #232526;
+    border-radius: 8px;
+  }
+  .tabla-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #1de9b6 #232526;
+  }
   .tabla {
     display: grid;
     grid-template-columns: repeat(18, minmax(60px, 1fr));
@@ -164,40 +182,80 @@
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #232526 80%, #1de9b6 100%);
+    background: linear-gradient(135deg, #232526 90%, #1de9b6 100%);
     border: 2px solid #1de9b6;
-    padding: 28px 22px;
+    padding: 28px 22px 22px 22px;
     border-radius: 18px;
     display: none;
     z-index: 1001;
     min-width: 260px;
-    max-width: 90vw;
-    box-shadow: 0 8px 32px #000a;
+    max-width: 92vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px #000a, 0 2px 8px #1de9b633;
     animation: popin 0.4s;
-    color: #fff;
+    color: #e0f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    backdrop-filter: blur(2px);
+    scrollbar-width: thin;
+    scrollbar-color: #1de9b6 #232526;
+  }
+  .dialogo::-webkit-scrollbar {
+    width: 8px;
+    background: #232526;
+    border-radius: 8px;
+  }
+  .dialogo::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #1de9b6 40%, #232526 100%);
+    border-radius: 8px;
+    border: 2px solid #232526;
+  }
+  .dialogo::-webkit-scrollbar-track {
+    background: #232526;
+    border-radius: 8px;
   }
   .dialogo h2 {
     margin: 0 0 8px 0;
     font-size: 2rem;
     color: #1de9b6;
-    text-shadow: 0 2px 8px #111a;
+    text-shadow: 0 2px 8px #111a, 0 1px 0 #fff1;
+    border-bottom: 1px solid #1de9b6;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
   }
   .dialogo p {
     margin: 7px 0;
-    font-size: 1.1em;
+    font-size: 1.08em;
+    color: #b2dfdb;
+    line-height: 1.5;
+    word-break: break-word;
+    background: rgba(35,37,38,0.25);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .dialogo p strong {
+    color: #1de9b6;
+    font-weight: 600;
   }
   .cerrar {
     position: absolute;
     top: 8px; right: 14px;
     background: none;
     border: none;
-    color: #fff;
-    font-size: 1.5em;
+    color: #1de9b6;
+    font-size: 1.7em;
     cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    opacity: 0.8;
+    transition: opacity 0.2s, color 0.2s;
+    z-index: 2;
   }
-  .cerrar:hover { opacity: 1; }
+  .cerrar:hover { 
+    opacity: 1; 
+    color: #fff;
+    text-shadow: 0 0 8px #1de9b6;
+  }
   </style>
 </head>
 <body>
