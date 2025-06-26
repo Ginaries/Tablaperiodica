@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabla Periódica Interactiva</title>
+  <style>
+    :root {
+      --cell-size: 48px;
+      --cell-gap: 6px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff00cc, #3333ff);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(90deg, #ff0, #0ff, #f0f, #0f0, #00f, #f00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 18px;
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #0008;
+    }
+    .tabla {
+      display: grid;
+      grid-template-columns: repeat(18, var(--cell-size));
+      grid-template-rows: repeat(10, var(--cell-size));
+      gap: var(--cell-gap);
+      background: rgba(255,255,255,0.05);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 0 8px 32px #0006;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .elemento {
+      background: linear-gradient(135deg, #fff2, #0ff4, #f0f2);
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px #0003;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #fff3;
+      user-select: none;
+      min-width: 0;
+      min-height: 0;
+      animation: popin 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes popin {
+      0% { transform: scale(0.7) rotate(-10deg);}
+      80% { transform: scale(1.1) rotate(2deg);}
+      100% { transform: scale(1) rotate(0);}
+    }
+    .elemento:hover, .elemento:focus {
+      transform: scale(1.18) rotate(-2deg);
+      box-shadow: 0 0 18px #fff, 0 0 8px #0ff8;
+      z-index: 2;
+    }
+    .elemento .simbolo {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 2px;
+      text-shadow: 0 1px 2px #0008;
+    }
+    .elemento .numero {
+      font-size: 0.7em;
+      position: absolute;
+      top: 3px;
+      left: 6px;
+      color: #fff9;
+      text-shadow: 0 1px 2px #000a;
+    }
+    .elemento .nombre {
+      font-size: 0.6em;
+      color: #fff9;
+      margin-top: 2px;
+      text-shadow: 0 1px 2px #000a;
+    }
+    /* Responsive */
+    @media (max-width: 900px) {
+      :root { --cell-size: 34px; }
+      .tabla { padding: 4px; }
+    }
+    @media (max-width: 600px) {
+      :root { --cell-size: 22vw; }
+      .tabla { gap: 2vw; }
+      h1 { font-size: 1.2rem; }
+    }
+    /* Modal */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      z-index: 1000;
+      animation: fadein 0.3s;
+    }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    .dialogo {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #222 80%, #0ff2 100%);
+      border: 2px solid #fff;
+      padding: 28px 22px;
+      border-radius: 18px;
+      display: none;
+      z-index: 1001;
+      min-width: 260px;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px #000a;
+      animation: popin 0.4s;
+    }
+    .dialogo h2 {
+      margin: 0 0 8px 0;
+      font-size: 2rem;
+      color: #0ff;
+      text-shadow: 0 2px 8px #000a;
+    }
+    .dialogo p {
+      margin: 7px 0;
+      font-size: 1.1em;
+    }
+    .cerrar {
+      position: absolute;
+      top: 8px; right: 14px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5em;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .cerrar:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Tabla Periódica de los Elementos</h1>
+  <div class="tabla" id="tabla"></div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="dialogo" id="dialogo">
+    <button class="cerrar" id="cerrar">&times;</button>
+    <h2 id="nombre"></h2>
+    <p><strong>Símbolo:</strong> <span id="simbolo"></span></p>
+    <p><strong>Número Atómico:</strong> <span id="numero"></span></p>
+    <p><strong>Masa Atómica:</strong> <span id="masa"></span></p>
+    <p><strong>Grupo:</strong> <span id="grupo"></span></p>
+    <p><strong>Período:</strong> <span id="periodo"></span></p>
+    <p><strong>Estado:</strong> <span id="estado"></span></p>
+    <p><strong>Configuración electrónica:</strong> <span id="config"></span></p>
+  </div>
+
+  <script>
+    // Datos de ejemplo, puedes completar los 118 elementos con más info
+    const elementos = [
+      // Solo los primeros 20 como ejemplo, puedes agregar todos
+      { simbolo: 'H', nombre: 'Hidrógeno', numero: 1, masa: 1.008, grupo: 1, periodo: 1, estado: 'Gas', config: '1s1', col: 1, row: 1 },
+      { simbolo: 'He', nombre: 'Helio', numero: 2, masa: 4.0026, grupo: 18, periodo: 1, estado: 'Gas', config: '1s2', col: 18, row: 1 },
+      { simbolo: 'Li', nombre: 'Litio', numero: 3, masa: 6.94, grupo: 1, periodo: 2, estado: 'Sólido', config: '[He] 2s1', col: 1, row: 2 },
+      { simbolo: 'Be', nombre: 'Berilio', numero: 4, masa: 9.0122, grupo: 2, periodo: 2, estado: 'Sólido', config: '[He] 2s2', col: 2, row: 2 },
+      { simbolo: 'B', nombre: 'Boro', numero: 5, masa: 10.81, grupo: 13, periodo: 2, estado: 'Sólido', config: '[He] 2s2 2p1', col: 13, row: 2 },
+      { simbolo: 'C', nombre: 'Carbono', numero: 6, masa: 12.011, grupo: 14, periodo: 2, estado: 'Sólido', config: '[He] 2s2 2p2', col: 14, row: 2 },
+      { simbolo: 'N', nombre: 'Nitrógeno', numero: 7, masa: 14.007, grupo: 15, periodo: 2, estado: 'Gas', config: '[He] 2s2 2p3', col: 15, row: 2 },
+      { simbolo: 'O', nombre: 'Oxígeno', numero: 8, masa: 15.999, grupo: 16, periodo: 2, estado: 'Gas', config: '[He] 2s2 2p4', col: 16, row: 2 },
+      { simbolo: 'F', nombre: 'Flúor', numero: 9, masa: 18.998, grupo: 17, periodo: 2, estado: 'Gas', config: '[He] 2s2 2p5', col: 17, row: 2 },
+      { simbolo: 'Ne', nombre: 'Neón', numero: 10, masa: 20.180, grupo: 18, periodo: 2, estado: 'Gas', config: '[He] 2s2 2p6', col: 18, row: 2 },
+      { simbolo: 'Na', nombre: 'Sodio', numero: 11, masa: 22.990, grupo: 1, periodo: 3, estado: 'Sólido', config: '[Ne] 3s1', col: 1, row: 3 },
+      { simbolo: 'Mg', nombre: 'Magnesio', numero: 12, masa: 24.305, grupo: 2, periodo: 3, estado: 'Sólido', config: '[Ne] 3s2', col: 2, row: 3 },
+      { simbolo: 'Al', nombre: 'Aluminio', numero: 13, masa: 26.982, grupo: 13, periodo: 3, estado: 'Sólido', config: '[Ne] 3s2 3p1', col: 13, row: 3 },
+      { simbolo: 'Si', nombre: 'Silicio', numero: 14, masa: 28.085, grupo: 14, periodo: 3, estado: 'Sólido', config: '[Ne] 3s2 3p2', col: 14, row: 3 },
+      { simbolo: 'P', nombre: 'Fósforo', numero: 15, masa: 30.974, grupo: 15, periodo: 3, estado: 'Sólido', config: '[Ne] 3s2 3p3', col: 15, row: 3 },
+      { simbolo: 'S', nombre: 'Azufre', numero: 16, masa: 32.06, grupo: 16, periodo: 3, estado: 'Sólido', config: '[Ne] 3s2 3p4', col: 16, row: 3 },
+      { simbolo: 'Cl', nombre: 'Cloro', numero: 17, masa: 35.45, grupo: 17, periodo: 3, estado: 'Gas', config: '[Ne] 3s2 3p5', col: 17, row: 3 },
+      { simbolo: 'Ar', nombre: 'Argón', numero: 18, masa: 39.948, grupo: 18, periodo: 3, estado: 'Gas', config: '[Ne] 3s2 3p6', col: 18, row: 3 },
+      { simbolo: 'K', nombre: 'Potasio', numero: 19, masa: 39.098, grupo: 1, periodo: 4, estado: 'Sólido', config: '[Ar] 4s1', col: 1, row: 4 },
+      { simbolo: 'Ca', nombre: 'Calcio', numero: 20, masa: 40.078, grupo: 2, periodo: 4, estado: 'Sólido', config: '[Ar] 4s2', col: 2, row: 4 },
+      {simbolo:"X" , nombre:"Elemento X", numero: 21, masa: 42.0, grupo: 3, periodo: 4, estado: "Sólido", config: "[Ar] 4s2 3d1", col: 3, row: 4},
+      // ...agrega el resto de los elementos aquí...
+    ];
+
+    const tabla = document.getElementById('tabla');
+    // Rellenar la tabla con 10 filas x 18 columnas
+    for (let row = 1; row <= 10; row++) {
+      for (let col = 1; col <= 18; col++) {
+        const elem = elementos.find(e => e.row === row && e.col === col);
+        const casillero = document.createElement('div');
+        if (elem) {
+          casillero.className = 'elemento';
+          casillero.tabIndex = 0;
+          casillero.innerHTML = `
+            <span class="numero">${elem.numero}</span>
+            <span class="simbolo">${elem.simbolo}</span>
+            <span class="nombre">${elem.nombre}</span>
+          `;
+          casillero.onclick = () => mostrarInfo(elem);
+          casillero.onkeydown = (e) => { if (e.key === 'Enter') mostrarInfo(elem); };
+        }
+        tabla.appendChild(casillero);
+      }
+    }
+
+    // Modal
+    const overlay = document.getElementById('overlay');
+    const dialogo = document.getElementById('dialogo');
+    const cerrar = document.getElementById('cerrar');
+    function mostrarInfo(elemento) {
+      document.getElementById('nombre').textContent = elemento.nombre;
+      document.getElementById('simbolo').textContent = elemento.simbolo;
+      document.getElementById('numero').textContent = elemento.numero;
+      document.getElementById('masa').textContent = elemento.masa;
+      document.getElementById('grupo').textContent = elemento.grupo;
+      document.getElementById('periodo').textContent = elemento.periodo;
+      document.getElementById('estado').textContent = elemento.estado;
+      document.getElementById('config').textContent = elemento.config;
+      dialogo.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+    function cerrarModal() {
+      dialogo.style.display = 'none';
+      overlay.style.display = 'none';
+    }
+    overlay.onclick = cerrar.onclick = cerrarModal;
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cerrarModal();
+    });
+  </script>
+</body>
+</html>
